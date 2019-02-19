@@ -9,13 +9,25 @@
 </template>
 
 <script lang="ts">
-import axios from 'axios'
 import { Component, Prop, Vue } from 'vue-property-decorator'
+import { namespace } from 'vuex-class'
+
+import axios from 'axios'
 import ApiMessage from '../../model/ApiMessage'
+
+// Namespace
+const ApiModule = namespace('Api')
 
 @Component
 export default class ApiText extends Vue {
-  private message: string = ''
+  @ApiModule.State
+  message!: string
+
+  @ApiModule.Getter
+  messageUppercase!: string
+
+  @ApiModule.Action
+  getMessage!: () => Promise<void>
 
   @Prop({
     required: true
@@ -23,13 +35,7 @@ export default class ApiText extends Vue {
   private title!: string
 
   private async mounted () {
-    const { data } = await axios.get<ApiMessage>('/api/test')
-
-    this.message = data.message
-  }
-
-  get messageUppercase (): string {
-    return this.message.toUpperCase()
+    await this.getMessage()
   }
 }
 </script>
